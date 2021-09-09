@@ -8,15 +8,20 @@
 
 import Foundation
 
-enum OperationsError {
-    case expressionIsIncorrect
-    case expressionHaventEnoughElement
-    case cantAddOperator
+protocol OperationHandler: class {
+    func displayResult(operationText: String)
+    func displayAlert(message: String)
 }
 
 class Operations {
     
-    var stringOperations: String = ""
+    var operationHandlerDelegate: OperationHandler?
+    
+    var stringOperations: String = "" {
+        didSet {
+            operationHandlerDelegate?.displayResult(operationText: stringOperations)
+        }
+    }
     
     var elements: [String] {
         return stringOperations.split(separator: " ").map { "\($0)" }
@@ -39,48 +44,51 @@ class Operations {
         lastElementCorrect()
     }
     
-    // Vérifie qu'il y a bien l'element égal dans l'expression
+    // Check that there is the element equal in the expression
     var expressionHaveResult: Bool {
         return stringOperations.firstIndex(of: "=") != nil
     }
     
-    // Vérifie que le dernier élément de l'expression n'est pas un opérateur.
-    // var expressionIsCorrect et var canAddOperator appellent cette fonction
+    // Check if the expression contains a divison by zero
+    var hasDivisionByZero: Bool {
+        return stringOperations.contains("/ 0")
+    }
+    
+    // Checks that the last element of the expression is not an operator.
     func lastElementCorrect() -> Bool {
         return elements.last != "+" && elements.last != "-" && elements.last != "x" && elements.last != "/"
     }
     
-    // Méthode qui permet d'ajouter le nombre choisit à la String. Si la string affiche déjà un résultat, celle ci se remet à 0 pour pouvoir contenir le nouvel élément tappé.
+    // Method that adds the chosen number to the String. If the string already displays a result, it resets to 0 to contain the new element.
     func addNumber(_ number: String) {
         if expressionHaveResult {
             stringOperations = ""
         }
-        
         stringOperations.append(number)
     }
     
-    // Méthode qui permet d'ajouter un opérateur à l'expression si cela est possible.
-    // TODO: Gérer les erreurs
+    // Method to add an operator to the expression if possible.
     func addOperator(_ operatorToAdd: String) {
-        if canAddOperator {
-            switch operatorToAdd {
-            case "+":
-                stringOperations.append(" + ")
-            case "-":
-                stringOperations.append(" - ")
-            case "x":
-                stringOperations.append(" x ")
-            case "/":
-                stringOperations.append(" / ")
-            default:
-                break
-                // Renvoyer une erreur : Pas le bon opérateur
-            }
-        } else {
-            // Renvoyer une erreur : Opérateur déjà présent
+        guard canAddOperator else {
+            operationHandlerDelegate?.displayAlert(message: "An operator has already been added")
+            return
+        }
+        
+        switch operatorToAdd {
+        case "+":
+            stringOperations.append(" + ")
+        case "-":
+            stringOperations.append(" - ")
+        case "x":
+            stringOperations.append(" x ")
+        case "/":
+            stringOperations.append(" / ")
+        default:
+            operationHandlerDelegate?.displayAlert(message: "This is not an operator")
         }
     }
     
+    // Allows to solve multiplications and divisions in priority in the expression
     func resolvePriorities(expression: [String]) -> [String] {
         var e = expression
         
@@ -97,36 +105,38 @@ class Operations {
                     result = left / right
                 }
                 e[index - 1] = String(result)
+                e.remove(at: index + 1)
                 e.remove(at: index)
-                e.remove(at: index)
-//                e.removeSubrange(<#T##bounds: Range<Int>##Range<Int>#>)
             }
         }
         return e
     }
     
+    // Function called when the equal key is touched. It checks that the expression is correct, that it contains enough elements and that a division by 0 is not present
     func equalTapped() {
         guard expressionIsCorrect else {
+            operationHandlerDelegate?.displayAlert(message: "Incorrect expression")
             return
         }
         
         guard expressionHaveEnoughElement else {
-//            let alertVC = UIAlertController(title: "Zéro!", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
-//            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//            return self.present(alertVC, animated: true, completion: nil)
+            operationHandlerDelegate?.displayAlert(message: "Expression hasn't enough elements")
             return
         }
         
-        // Create local copy of operations
+        guard !hasDivisionByZero else {
+            operationHandlerDelegate?.displayAlert(message: "Division by 0 impossible")
+            return
+        }
+        
         var operationsToReduce = resolvePriorities(expression: elements)
-        print(operationsToReduce)
-        // Iterate over operations while an operand still here
+        
         while operationsToReduce.count > 1 {
-            let left = Int(operationsToReduce[0]) ?? 0
+            guard let left = Double(operationsToReduce[0]) else { return }
             let operand = operationsToReduce[1]
-            let right = Int(operationsToReduce[2]) ?? 0
+            guard let right = Double(operationsToReduce[2]) else { return }
             
-            let result: Int
+            let result: Double
             switch operand {
             case "+": result = left + right
             case "-": result = left - right
@@ -140,29 +150,9 @@ class Operations {
         stringOperations.append(" = \(operationsToReduce.first!)")
     }
     
+    // Reset the text view when the AC key is touched
     func allClear() {
         stringOperations = ""
     }
-    
 }
 
-
-//@IBAction func tappedAdditionButton(_ sender: UIButton) {
-//    if canAddOperator {
-//        textView.text.append(" + ")
-//    } else {
-//        let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-//        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//        self.present(alertVC, animated: true, completion: nil)
-//    }
-//}
-//
-//@IBAction func tappedSubstractionButton(_ sender: UIButton) {
-//    if canAddOperator {
-//        textView.text.append(" - ")
-//    } else {
-//        let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-//        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//        self.present(alertVC, animated: true, completion: nil)
-//    }
-//}

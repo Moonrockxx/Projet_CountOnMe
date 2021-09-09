@@ -20,12 +20,7 @@ class ViewController: UIViewController {
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        operations.addNumber("2")
-        operations.addOperator("+")
-        operations.addNumber("2")
-        operations.addOperator("x")
-        operations.addNumber("2")
-        operations.equalTapped()
+        operations.operationHandlerDelegate = self
     }
     
     
@@ -59,7 +54,18 @@ class ViewController: UIViewController {
     
     @IBAction func allClearButton(_ sender: UIButton) {
         operations.allClear()
-    }    
+    }
 
 }
 
+extension ViewController: OperationHandler {
+    func displayResult(operationText: String) {
+        textView.text = operationText
+    }
+    
+    func displayAlert(message: String) {
+        let alertViewController = UIAlertController(title: "", message: message, preferredStyle: .alert)
+        alertViewController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+        present(alertViewController, animated: true, completion: nil)
+    }
+}
