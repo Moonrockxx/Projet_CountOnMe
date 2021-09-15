@@ -59,11 +59,11 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: OperationHandler {
-    func displayResult(operationText: String) {
+    func resultHandler(operationText: String) {
         textView.text = operationText
     }
     
-    func displayAlert(message: String) {
+    func errorHandler(message: String) {
         let alertViewController = UIAlertController(title: "", message: message, preferredStyle: .alert)
         alertViewController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
         present(alertViewController, animated: true, completion: nil)

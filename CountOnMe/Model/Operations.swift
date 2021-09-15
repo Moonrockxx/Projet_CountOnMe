@@ -9,8 +9,8 @@
 import Foundation
 
 protocol OperationHandler: class {
-    func displayResult(operationText: String)
-    func displayAlert(message: String)
+    func resultHandler(operationText: String)
+    func errorHandler(message: String)
 }
 
 class Operations {
@@ -19,7 +19,7 @@ class Operations {
     
     var stringOperations: String = "" {
         didSet {
-            operationHandlerDelegate?.displayResult(operationText: stringOperations)
+            operationHandlerDelegate?.resultHandler(operationText: stringOperations)
         }
     }
     
@@ -28,6 +28,11 @@ class Operations {
     }
     
     // MARK: Error check computed variables
+    
+    // Check if the expressin is empty or not
+    var expressionIsEmpty: Bool {
+        return stringOperations.isEmpty
+    }
     
     // Check if the expression doesn't end by an operator
     var expressionIsCorrect: Bool {
@@ -70,9 +75,14 @@ class Operations {
     // Method to add an operator to the expression if possible.
     func addOperator(_ operatorToAdd: String) {
         guard canAddOperator else {
-            operationHandlerDelegate?.displayAlert(message: "An operator has already been added")
+            operationHandlerDelegate?.errorHandler(message: "You can't add an operator")
             return
         }
+        
+//        guard expressionIsEmpty else {
+//            operationHandlerDelegate?.errorHandler(message: "You can't start with an operator")
+//            return
+//        }
         
         switch operatorToAdd {
         case "+":
@@ -84,7 +94,7 @@ class Operations {
         case "/":
             stringOperations.append(" / ")
         default:
-            operationHandlerDelegate?.displayAlert(message: "This is not an operator")
+            operationHandlerDelegate?.errorHandler(message: "This is not an operator")
         }
     }
     
@@ -114,18 +124,19 @@ class Operations {
     
     // Function called when the equal key is touched. It checks that the expression is correct, that it contains enough elements and that a division by 0 is not present
     func equalTapped() {
+        
         guard expressionIsCorrect else {
-            operationHandlerDelegate?.displayAlert(message: "Incorrect expression")
+            operationHandlerDelegate?.errorHandler(message: "The expression isn't correct")
             return
         }
         
         guard expressionHaveEnoughElement else {
-            operationHandlerDelegate?.displayAlert(message: "Expression hasn't enough elements")
+            operationHandlerDelegate?.errorHandler(message: "Expression hasn't enough elements")
             return
         }
         
         guard !hasDivisionByZero else {
-            operationHandlerDelegate?.displayAlert(message: "Division by 0 impossible")
+            operationHandlerDelegate?.errorHandler(message: "Division by 0 impossible")
             return
         }
         
