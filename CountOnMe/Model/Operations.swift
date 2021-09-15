@@ -8,14 +8,14 @@
 
 import Foundation
 
-protocol OperationHandler: class {
+protocol OperationHandler: AnyObject {
     func resultHandler(operationText: String)
     func errorHandler(message: String)
 }
 
 class Operations {
     
-    var operationHandlerDelegate: OperationHandler?
+    weak var operationHandlerDelegate: OperationHandler?
     
     var stringOperations: String = "" {
         didSet {
@@ -79,10 +79,10 @@ class Operations {
             return
         }
         
-//        guard expressionIsEmpty else {
-//            operationHandlerDelegate?.errorHandler(message: "You can't start with an operator")
-//            return
-//        }
+        guard !expressionIsEmpty else {
+            operationHandlerDelegate?.errorHandler(message: "You can't start with an operator")
+            return
+        }
         
         switch operatorToAdd {
         case "+":
@@ -100,13 +100,13 @@ class Operations {
     
     // Allows to solve multiplications and divisions in priority in the expression
     func resolvePriorities(expression: [String]) -> [String] {
-        var e = expression
+        var prioExpression = expression
         
-        while e.contains("x") || e.contains("/") {
-            if let index = e.firstIndex(where: {$0 == "x" || $0 == "/" }) {
-                guard let left = Double(e[index - 1]) else { return [] }
-                let operand = e[index]
-                guard let right = Double(e[index + 1]) else { return [] }
+        while prioExpression.contains("x") || prioExpression.contains("/") {
+            if let index = prioExpression.firstIndex(where: {$0 == "x" || $0 == "/" }) {
+                guard let left = Double(prioExpression[index - 1]) else { return [] }
+                let operand = prioExpression[index]
+                guard let right = Double(prioExpression[index + 1]) else { return [] }
                 
                 let result: Double
                 if operand == "x" {
@@ -114,12 +114,12 @@ class Operations {
                 } else {
                     result = left / right
                 }
-                e[index - 1] = String(result)
-                e.remove(at: index + 1)
-                e.remove(at: index)
+                prioExpression[index - 1] = String(result)
+                prioExpression.remove(at: index + 1)
+                prioExpression.remove(at: index)
             }
         }
-        return e
+        return prioExpression
     }
     
     // Function called when the equal key is touched. It checks that the expression is correct, that it contains enough elements and that a division by 0 is not present
@@ -166,4 +166,3 @@ class Operations {
         stringOperations = ""
     }
 }
-

@@ -15,15 +15,13 @@ class ViewController: UIViewController {
     @IBOutlet weak var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     @IBOutlet var operatorButtons: [UIButton]!
-    
-    
+
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         operations.operationHandlerDelegate = self
     }
-    
-    
+
     // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         guard let numberText = sender.title(for: .normal) else {
