@@ -56,6 +56,7 @@ class ViewController: UIViewController {
 
 }
 
+// - Make the ViewController conform to OperationHandler. Then it's provide to display result or errors with UIAlertController
 extension ViewController: OperationHandler {
     func resultHandler(operationText: String) {
         textView.text = operationText

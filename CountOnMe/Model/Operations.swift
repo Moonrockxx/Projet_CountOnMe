@@ -17,50 +17,50 @@ class Operations {
     
     weak var operationHandlerDelegate: OperationHandler?
     
-    var stringOperations: String = "" {
+    private var stringOperations: String = "" {
         didSet {
             operationHandlerDelegate?.resultHandler(operationText: stringOperations)
         }
     }
     
-    var elements: [String] {
+    private var elements: [String] {
         return stringOperations.split(separator: " ").map { "\($0)" }
     }
     
     // MARK: Error check computed variables
     
     // Check if the expressin is empty or not
-    var expressionIsEmpty: Bool {
+    private var expressionIsEmpty: Bool {
         return stringOperations.isEmpty
     }
     
     // Check if the expression doesn't end by an operator
-    var expressionIsCorrect: Bool {
+    private var expressionIsCorrect: Bool {
         lastElementCorrect()
     }
     
     // Check if the counting expression is greater or equal than 3
-    var expressionHaveEnoughElement: Bool {
+    private var expressionHaveEnoughElement: Bool {
         return elements.count >= 3
     }
     
     // Check that the expression doesn't have two consecutives operators
-    var canAddOperator: Bool {
+    private var canAddOperator: Bool {
         lastElementCorrect()
     }
     
     // Check that there is the element equal in the expression
-    var expressionHaveResult: Bool {
+    private var expressionHaveResult: Bool {
         return stringOperations.firstIndex(of: "=") != nil
     }
     
     // Check if the expression contains a divison by zero
-    var hasDivisionByZero: Bool {
+    private var hasDivisionByZero: Bool {
         return stringOperations.contains("/ 0")
     }
     
     // Checks that the last element of the expression is not an operator.
-    func lastElementCorrect() -> Bool {
+    private func lastElementCorrect() -> Bool {
         return elements.last != "+" && elements.last != "-" && elements.last != "x" && elements.last != "/"
     }
     
@@ -99,7 +99,7 @@ class Operations {
     }
     
     // Allows to solve multiplications and divisions in priority in the expression
-    func resolvePriorities(expression: [String]) -> [String] {
+    private func resolvePriorities(expression: [String]) -> [String] {
         var prioExpression = expression
         
         while prioExpression.contains("x") || prioExpression.contains("/") {
