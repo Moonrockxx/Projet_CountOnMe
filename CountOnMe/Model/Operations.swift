@@ -124,7 +124,6 @@ class Operations {
     
     // Function called when the equal key is touched. It checks that the expression is correct, that it contains enough elements and that a division by 0 is not present
     func equalTapped() {
-        
         guard expressionIsCorrect else {
             operationHandlerDelegate?.errorHandler(message: "The expression isn't correct")
             return
