@@ -72,7 +72,7 @@ class Operations {
         stringOperations.append(number)
     }
     
-    // Method to add an operator to the expression if possible.
+    // Method to add an operator to the expression if it's possible.
     func addOperator(_ operatorToAdd: String) {
         guard canAddOperator else {
             operationHandlerDelegate?.errorHandler(message: "You can't add an operator")
